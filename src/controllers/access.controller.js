@@ -4,6 +4,13 @@ import AccessService from "../services/access.service.js";
 import { OK, CREATED } from "../core/success.response.js";
 
 class AccessController {
+  login = async (req, res, next) => {
+    return new OK({
+      message: 'Login success',
+      metadata: await AccessService.login(req.body)
+    }).send(res)
+  }
+
   signUp = async (req, res, next) => {
     return new CREATED({
       message: 'Register OK!',

@@ -3,7 +3,10 @@ import bcrypt from 'bcrypt'
 import crypto from 'node:crypto'
 import KeyTokenService from './keyToken.service.js'
 import { createTokenPair } from '../auth/authUntils.js'
-import { BadRequestError, ConflictRequstError } from '../core/error.response.js'
+import { BadRequestError, ConflictRequstError, AuthFailureError } from '../core/error.response.js'
+import { findByEmail } from './shop.service.js'
+import getInfoData from '../utils/index.js'
+import { userInfo } from 'node:os'
 
 const RoleShop = {
   SHOP: 'SHOP',
@@ -12,7 +15,52 @@ const RoleShop = {
   ADMIN: 'ADMIN'
 }
 
+
 class AccessService {
+  /*
+    1.check email dbs
+    2.match password
+    3.create private key,public key and save
+    4.generate tokens
+    5.get data and return login
+  */
+
+
+  static login = async ({ email, password, refreshToken = null }) => {
+    //check email dbs
+    const foundShop = await findByEmail({ email })
+    if (!foundShop) {
+      throw new BadRequestError('Error: Not Found Email')
+    }
+    // match password
+    const match = bcrypt.compare(password, foundShop.password)
+    if (!match) {
+      throw new AuthFailureError('Error: Authentication error')
+    }
+    // create private key,public key and save
+    const publicKey = crypto.randomBytes(64).toString('hex')
+    const privateKey = crypto.randomBytes(64).toString('hex')
+    const { userId } = foundShop._id
+    // generate tokens
+    const tokens = createTokenPair(
+      { userId, email },
+      publicKey,
+      privateKey
+    )
+    await KeyTokenService.createKeyToken({
+      userId,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken
+    })
+
+    return {
+      code: 200,
+      shop: getInfoData({ filed: ['_id', 'name', 'email'], object: foundShop }),
+      tokens
+    }
+  }
+
   static signUp = async ({ name, email, password }) => {
 
     const holderShop = await shopModel.findOne({ email }).lean()
@@ -26,7 +74,7 @@ class AccessService {
       const publicKey = crypto.randomBytes(64).toString('hex')
       const privateKey = crypto.randomBytes(64).toString('hex')
 
-      const keyStore = KeyTokenService.createKeyToken({
+      const keyStore = await KeyTokenService.createKeyToken({
         userId: newShop._id,
         publicKey,
         privateKey
@@ -39,7 +87,7 @@ class AccessService {
       return {
         code: 201,
         metadata: {
-          shop: newShop,
+          shop: getInfoData({ filed: ['_id', 'name', 'email'], object: newShop }),
           tokens
         }
       }
