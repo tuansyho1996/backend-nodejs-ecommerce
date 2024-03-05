@@ -17,14 +17,12 @@ class SuccessResponse {
     this.metadata = metadata
   }
   send(res, headers = {}) {
-    console.log('check this aa', this)
     return res.status(this.status).json(this)
   }
 }
 
 class OK extends SuccessResponse {
   constructor({ message, statusCode = StatusCode.OK, reasonStatusCode = ReasonStatusCode.OK, metadata }) {
-    console.log('check ok')
     super({ message, metadata, statusCode, reasonStatusCode })
   }
 }
