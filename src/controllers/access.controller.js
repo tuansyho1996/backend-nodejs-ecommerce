@@ -4,6 +4,7 @@ import AccessService from "../services/access.service.js";
 import { OK, CREATED } from "../core/success.response.js";
 
 class AccessController {
+
   handleRefreshToken = async (req, res, next) => {
     return new OK({
       message: 'Get token success',
@@ -27,9 +28,6 @@ class AccessController {
     return new CREATED({
       message: 'Register OK!',
       metadata: await AccessService.signUp(req.body),
-      option: {
-        limit: 10
-      }
     }).send(res)
   }
   // signUp = async (req, res, next) => {

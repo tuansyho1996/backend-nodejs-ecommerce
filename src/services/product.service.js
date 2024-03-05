@@ -1,16 +1,16 @@
 'use strict'
-import { product, clothing, electronic } from "../models/product.model"
-import { BadRequestError, ConflictRequestError } from "../core/error.response"
+import { product, clothing, electronic } from "../models/product.model.js"
+import { BadRequestError, ConflictRequestError } from "../core/error.response.js"
 
 class ProductFactory {
   static createProduct(type, payload) {
     switch (type) {
       case 'Electronics':
-        return new Electronic.createProduct(payload)
+        return new Electronic(payload)
       case 'Clothing':
-        return new Clothing.createProduct(payload)
+        return new Clothing(payload).createProduct()
       default:
-        throw BadRequestError(`Invalid  product type ${type}`)
+        throw new BadRequestError(`Invalid  product type ${type}`)
     }
   }
 }
@@ -36,10 +36,12 @@ class Product {
 class Clothing extends Product {
   async createProduct() {
     const newClothing = await clothing.create(this.product_attributes)
+
     if (!newClothing) {
       throw new BadRequestError('Create new clothing error')
     }
     const newProduct = await super.createProduct()
+    console.log(newProduct)
     if (!newProduct) {
       throw new BadRequestError('Create new product error')
     }
@@ -48,7 +50,7 @@ class Clothing extends Product {
 }
 class Electronic extends Product {
   async createProduct() {
-    const newElectronic = await clothing.create(this.product_attributes)
+    const newElectronic = await electronic.create(this.product_attributes)
     if (!newElectronic) {
       throw new BadRequestError('Create new electronic error')
     }
