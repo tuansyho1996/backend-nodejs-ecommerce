@@ -1,6 +1,10 @@
 'use strict'
 import { product, clothing, electronic } from "../models/product.model.js"
 import { BadRequestError, ConflictRequestError } from "../core/error.response.js"
+import {
+  findAllDraftForShop, publishProductByShop, findAllPublishForShop, unPublishProductByShop,
+  findAllProduct, findOneProduct
+} from "../models/repositories/product.repo.js"
 
 class ProductFactory {
   static createProduct(type, payload) {
@@ -12,6 +16,29 @@ class ProductFactory {
       default:
         throw new BadRequestError(`Invalid  product type ${type}`)
     }
+  }
+  static async findAllDraftForShop(product_shop, limit = 50, skip = 0) {
+    const query = { product_shop, isDraft: true }
+    return await findAllDraftForShop(query, limit, skip)
+  }
+  static async findAllPublishForShop(product_shop, limit = 50, skip = 0) {
+    const query = { product_shop, isPublished: true }
+    return await findAllPublishForShop(query, limit, skip)
+  }
+  static async publishProductByShop(product_shop, product_id) {
+    return await publishProductByShop(product_shop, product_id)
+  }
+  static async unPublishProductByShop(product_shop, product_id) {
+    return await unPublishProductByShop(product_shop, product_id)
+  }
+  static async findAllProduct({ sort, page }) {
+    return await findAllProduct({
+      filter: { isPublished: true }, sort, limit: 50, page,
+      select: ['product_name', 'product_thumb', 'product_price']
+    })
+  }
+  static async findOneProduct(id) {
+    return await findOneProduct(id)
   }
 }
 
@@ -35,12 +62,12 @@ class Product {
 }
 class Clothing extends Product {
   async createProduct() {
-    const newClothing = await clothing.create(this.product_attributes)
+    const newClothing = await clothing.create({ ...this.product_attributes, product_shop: this.product_shop })
 
     if (!newClothing) {
       throw new BadRequestError('Create new clothing error')
     }
-    const newProduct = await super.createProduct()
+    const newProduct = await super.createProduct(newClothing._id)
     if (!newProduct) {
       throw new BadRequestError('Create new product error')
     }

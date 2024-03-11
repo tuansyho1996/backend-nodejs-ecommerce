@@ -5,7 +5,7 @@ import KeyTokenService from './keyToken.service.js'
 import { authenticationV2, createTokenPair } from '../auth/authUntils.js'
 import { BadRequestError, ConflictRequestError, AuthFailureError, ForbiddenError } from '../core/error.response.js'
 import { findByEmail } from './shop.service.js'
-import getInfoData from '../utils/index.js'
+import { getInfoData } from '../utils/index.js'
 import { userInfo } from 'node:os'
 import JWT from 'jsonwebtoken'
 
@@ -48,7 +48,7 @@ class AccessService {
   /*
     1.check email dbs
     2.match password
-    3.create private key,public key and save
+    3.create private key,publish key and save
     4.generate tokens
     5.get data and return login
   */
@@ -67,7 +67,7 @@ class AccessService {
     if (!match) {
       throw new AuthFailureError('Error: Authentication error')
     }
-    // create private key,public key and save
+    // create private key,publish key and save
     const publicKey = crypto.randomBytes(64).toString('hex')
     const privateKey = crypto.randomBytes(64).toString('hex')
     const { _id } = foundShop
@@ -100,20 +100,22 @@ class AccessService {
     const passwordHash = await bcrypt.hash(password, 10);
     const newShop = await shopModel.create({ name, email, password: passwordHash, roles: [RoleShop.SHOP] })
     if (newShop) {
-      //create private key and public key
+      //create private key and publish key
       const publicKey = crypto.randomBytes(64).toString('hex')
       const privateKey = crypto.randomBytes(64).toString('hex')
 
+
+      // create token pair
+      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
       const keyStore = await KeyTokenService.createKeyToken({
         userId: newShop._id,
         publicKey,
-        privateKey
+        privateKey,
+        refreshToken: tokens.refreshToken
       })
       if (!keyStore) {
         throw new BadRequestError('Error: Key Store Error')
       }
-      // create token pair
-      const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
       return {
         code: 201,
         metadata: {

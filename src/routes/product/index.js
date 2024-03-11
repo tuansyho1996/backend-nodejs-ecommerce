@@ -12,6 +12,19 @@ router.use(asyncHandle(authenticationV2))
 //create product
 router.post('/create', asyncHandle(productController.createProduct))
 
+//GET QUERY
+//get all draft product
+router.get('/get-all-draft-shop', asyncHandle(productController.findAllDraftForShop))
+//get all publish product for shop
+router.get('/get-all-publish-shop', asyncHandle(productController.findAllPublishForShop))
+//publish one product
+router.get('/publish-product-by-shop/:id', asyncHandle(productController.publishProductByShop))
+//unPublish one product
+router.get('/unpublish-product-by-shop/:id', asyncHandle(productController.unPublishProductByShop))
+//get all product
+router.get('/get-all-product', asyncHandle(productController.findAllProduct))
+//get one product
+router.get('/get-one-product/:id', asyncHandle(productController.findOneProduct))
 
 
 export default router
