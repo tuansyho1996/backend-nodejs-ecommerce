@@ -1,7 +1,7 @@
 'use strict'
 import { query } from "express"
 import { product, electronic, clothing, } from "../product.model.js"
-import { UnGetSelectData, getSelectData } from "../../utils/index.js"
+import { unGetSelectData, getSelectData } from "../../utils/index.js"
 
 const findAllDraftForShop = async (query, limit, skip) => {
   return await product.find(query).
@@ -53,9 +53,13 @@ const findAllProduct = async ({ filter, sort, limit, page, select }) => {
 }
 const findOneProduct = async (_id) => {
   return await product.find({ _id })
-    .select(UnGetSelectData(['__v']))
+    .select(unGetSelectData(['__v']))
     .lean()
     .exec()
+}
+const updateProductById = async ({ id, bodyUpdate, model, isNew = true }) => {
+  console.log('check', id, bodyUpdate, model)
+  return await model.findByIdAndUpdate(id, bodyUpdate, { new: isNew })
 }
 export {
   findAllDraftForShop,
@@ -63,5 +67,6 @@ export {
   findAllPublishForShop,
   unPublishProductByShop,
   findAllProduct,
-  findOneProduct
+  findOneProduct,
+  updateProductById
 }

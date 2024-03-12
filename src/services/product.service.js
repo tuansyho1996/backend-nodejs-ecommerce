@@ -1,15 +1,15 @@
-'use strict'
 import { product, clothing, electronic } from "../models/product.model.js"
 import { BadRequestError, ConflictRequestError } from "../core/error.response.js"
 import {
   findAllDraftForShop, publishProductByShop, findAllPublishForShop, unPublishProductByShop,
-  findAllProduct, findOneProduct
+  findAllProduct, findOneProduct, updateProductById
 } from "../models/repositories/product.repo.js"
+import { removeUndefinedObject, updateNestedObjectParse } from "../utils/index.js"
 
 class ProductFactory {
   static createProduct(type, payload) {
     switch (type) {
-      case 'Electronics':
+      case 'Electronic':
         return new Electronic(payload).createProduct()
       case 'Clothing':
         return new Clothing(payload).createProduct()
@@ -40,6 +40,16 @@ class ProductFactory {
   static async findOneProduct(id) {
     return await findOneProduct(id)
   }
+  static async updateProduct({ type, product_id, payload }) {
+    switch (type) {
+      case 'Clothing':
+        return new Clothing(payload).updateProduct(product_id)
+      case 'Electronic':
+        return new Electronic(payload).updateProduct(product_id)
+      default:
+        throw new BadRequestError(`Invalid  product type ${type}`)
+    }
+  }
 }
 
 class Product {
@@ -59,6 +69,10 @@ class Product {
   async createProduct(_id) {
     return await product.create({ ...this, _id })
   }
+  async updateProduct(product_id, bodyUpdate) {
+    return await updateProductById({ id: product_id, bodyUpdate, model: product })
+  }
+
 }
 class Clothing extends Product {
   async createProduct() {
@@ -73,6 +87,13 @@ class Clothing extends Product {
     }
     return newProduct
   }
+  async updateProduct(product_id) {
+    const objectParams = this
+    if (objectParams.product_attributes) {
+      await updateProductById({ id: product_id, bodyUpdate: updateNestedObjectParse(objectParams.product_attributes), model: clothing })
+    }
+    return await super.updateProduct(product_id, updateNestedObjectParse(objectParams.product_attributes))
+  }
 }
 class Electronic extends Product {
   async createProduct() {
@@ -85,6 +106,16 @@ class Electronic extends Product {
       throw new BadRequestError('Create new product error')
     }
     return newProduct
+  }
+  async updateProduct(product_id) {
+
+    const objectParams = this
+
+    if (objectParams.product_attributes) {
+
+      await updateProductById({ id: product_id, bodyUpdate: updateNestedObjectParse(objectParams.product_attributes), model: electronic })
+    }
+    return await super.updateProduct(product_id, updateNestedObjectParse(objectParams))
   }
 }
 

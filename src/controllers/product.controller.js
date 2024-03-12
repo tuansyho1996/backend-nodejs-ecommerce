@@ -56,6 +56,14 @@ class ProductController {
       metadata: await ProductService.findOneProduct(req.params.id)
     }).send(res)
   }
+  // PATCH
+  //update product by id
+  updateProduct = async (req, res, next) => {
+    return new OK({
+      message: 'Update product success',
+      metadata: await ProductService.updateProduct({ type: req.body.product_type, product_id: req.params.productId, payload: req.body })
+    }).send(res)
+  }
 }
 
 export default new ProductController()
