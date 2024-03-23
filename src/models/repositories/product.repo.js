@@ -1,7 +1,6 @@
 'use strict'
-import { query } from "express"
 import { product, electronic, clothing, } from "../product.model.js"
-import { unGetSelectData, getSelectData } from "../../utils/index.js"
+import { unGetSelectData, getSelectData, convertToObjectIdMongodb } from "../../utils/index.js"
 
 const findAllDraftForShop = async (query, limit, skip) => {
   return await product.find(query).
@@ -13,13 +12,14 @@ const findAllDraftForShop = async (query, limit, skip) => {
     .exec()
 }
 const findAllPublishForShop = async (query, limit, skip) => {
-  return await product.find(query).
+  const products = await product.find(query).
     populate('product_shop', 'name email _id')
     .sort({ updateAt: -1 })
     .skip(skip)
     .limit(limit)
     .lean()
     .exec()
+  return products
 }
 const publishProductByShop = async (product_shop, product_id) => {
   const foundShop = await product.findOne({
@@ -40,7 +40,7 @@ const unPublishProductByShop = async (product_shop, product_id) => {
   return modifiedCount
 }
 // query all product for shop
-const findAllProduct = async ({ filter, sort, limit, page, select }) => {
+const findAllProducts = async ({ filter, sort, limit, page, select }) => {
   const skip = (page - 1) * limit
   const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
   return await product.find(filter)
@@ -58,15 +58,32 @@ const findOneProduct = async (_id) => {
     .exec()
 }
 const updateProductById = async ({ id, bodyUpdate, model, isNew = true }) => {
-  console.log('check', id, bodyUpdate, model)
+  console.log('update product body', bodyUpdate)
   return await model.findByIdAndUpdate(id, bodyUpdate, { new: isNew })
+}
+const findProductById = async (id) => {
+  return await product.findById(convertToObjectIdMongodb(id))
+}
+const checkProductService = async (products) => {
+  return await Promise.all(products.map(async (product) => {
+    const foundProduct = await findProductById(product.productId)
+    if (foundProduct) {
+      return {
+        price: foundProduct.product_price,
+        quantity: product.quantity,
+        productId: product.productId
+      }
+    }
+  }))
 }
 export {
   findAllDraftForShop,
   publishProductByShop,
   findAllPublishForShop,
   unPublishProductByShop,
-  findAllProduct,
+  findAllProducts,
   findOneProduct,
-  updateProductById
+  updateProductById,
+  findProductById,
+  checkProductService
 }

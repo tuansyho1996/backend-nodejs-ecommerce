@@ -2,9 +2,10 @@ import { product, clothing, electronic } from "../models/product.model.js"
 import { BadRequestError, ConflictRequestError } from "../core/error.response.js"
 import {
   findAllDraftForShop, publishProductByShop, findAllPublishForShop, unPublishProductByShop,
-  findAllProduct, findOneProduct, updateProductById
+  findAllProducts, findOneProduct, updateProductById
 } from "../models/repositories/product.repo.js"
 import { removeUndefinedObject, updateNestedObjectParse } from "../utils/index.js"
+import { createInventory } from "../models/repositories/inventory.repo.js"
 
 class ProductFactory {
   static createProduct(type, payload) {
@@ -31,8 +32,8 @@ class ProductFactory {
   static async unPublishProductByShop(product_shop, product_id) {
     return await unPublishProductByShop(product_shop, product_id)
   }
-  static async findAllProduct({ sort, page }) {
-    return await findAllProduct({
+  static async findAllProducts({ sort, page }) {
+    return await findAllProducts({
       filter: { isPublished: true }, sort, limit: 50, page,
       select: ['product_name', 'product_thumb', 'product_price']
     })
@@ -67,7 +68,9 @@ class Product {
     this.product_attributes = product_attributes
   }
   async createProduct(_id) {
-    return await product.create({ ...this, _id })
+    const new_product = await product.create({ ...this, _id })
+    await createInventory(new_product._id, new_product.product_shop, new_product.product_quantity)
+    return new_product
   }
   async updateProduct(product_id, bodyUpdate) {
     return await updateProductById({ id: product_id, bodyUpdate, model: product })
@@ -92,7 +95,7 @@ class Clothing extends Product {
     if (objectParams.product_attributes) {
       await updateProductById({ id: product_id, bodyUpdate: updateNestedObjectParse(objectParams.product_attributes), model: clothing })
     }
-    return await super.updateProduct(product_id, updateNestedObjectParse(objectParams.product_attributes))
+    return await super.updateProduct(product_id, updateNestedObjectParse(objectParams))
   }
 }
 class Electronic extends Product {

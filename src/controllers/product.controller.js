@@ -43,10 +43,10 @@ class ProductController {
     }).send(res)
   }
   // find all product for shop
-  findAllProduct = async (req, res, next) => {
+  findAllProducts = async (req, res, next) => {
     return new OK({
       message: 'Get all product success',
-      metadata: await ProductService.findAllProduct({ product_shop: req.decodeUser.userId, sort: 'ctime', page: 1 })
+      metadata: await ProductService.findAllProducts({ product_shop: req.decodeUser.userId, sort: 'ctime', page: 1 })
     }).send(res)
   }
   //find one product

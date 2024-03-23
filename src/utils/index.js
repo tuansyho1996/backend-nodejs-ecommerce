@@ -1,5 +1,10 @@
 
 import _ from 'lodash'
+import { Types } from 'mongoose'
+
+const convertToObjectIdMongodb = (id) => {
+  return new Types.ObjectId(id)
+}
 
 const getInfoData = ({ filed, object }) => {
   return _.pick(object, filed)
@@ -15,7 +20,6 @@ const unGetSelectData = (unSelect = []) => {
 const removeUndefinedObject = (obj) => {
   Object.keys(obj).forEach(k => {
     if (obj[k] == null) {
-      console.log('k', k)
       delete obj[k]
     }
   })
@@ -42,5 +46,6 @@ export {
   getSelectData,
   unGetSelectData,
   removeUndefinedObject,
-  updateNestedObjectParse
+  updateNestedObjectParse,
+  convertToObjectIdMongodb
 }

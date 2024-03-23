@@ -8,7 +8,7 @@ import productController from '../../controllers/product.controller.js'
 const router = express.Router()
 
 //get all product
-router.get('/get-all-product', asyncHandle(productController.findAllProduct))
+router.get('/get-all-product', asyncHandle(productController.findAllProducts))
 //get one product
 router.get('/get-one-product/:id', asyncHandle(productController.findOneProduct))
 
