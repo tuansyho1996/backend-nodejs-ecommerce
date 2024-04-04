@@ -1,9 +1,11 @@
 'use strict'
 
 import { BadRequestError } from "../core/error.response.js"
+import orderModel from "../models/order.model.js"
 import { findCartById } from "../models/repositories/cart.repo.js"
 import { checkProductService } from "../models/repositories/product.repo.js"
 import DiscountService from "./discount.service.js"
+import { acquireLock, releaseLock } from "./redis.service.js"
 
 class CheckoutService {
   /**
@@ -80,13 +82,42 @@ class CheckoutService {
       }
       checkout_order.totalCheckout += item_checkout.priceApplyDiscount
       shop_order_ids_new.push(item_checkout)
-      console.log('update')
     }
     return {
       shop_order_ids,
       shop_order_ids_new,
       checkout_order
     }
+  }
+  static async orderByUser({
+    cartId,
+    userId,
+    shop_order_ids,
+    user_address = {},
+    user_payment = {}
+  }) {
+    const { shop_order_ids_new, checkout_order } = await this.checkoutReview({ cartId, shop_order_ids })
+    const products = shop_order_ids_new.flatMap(order => order.item_products)
+    const lockProducts = []
+    for (let i = 0; i < products.length; i++) {
+      const { productId, quantity } = products[i]
+      const keyLock = await acquireLock(productId, quantity, cartId)
+      lockProducts.push(keyLock ? true : false)
+      if (keyLock) {
+        await releaseLock(keyLock)
+      }
+    }
+    if (lockProducts.includes(false)) {
+      throw new BadRequestError('Your cart has been updated,please back to cart')
+    }
+    const newOrder = orderModel.create({
+      order_userId: userId,
+      order_checkout: checkout_order,
+      order_products: shop_order_ids_new,
+      order_shipping: user_address,
+      order_payment: user_payment
+    })
+    return newOrder
   }
 }
 export default CheckoutService
