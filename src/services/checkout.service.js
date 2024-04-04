@@ -80,6 +80,7 @@ class CheckoutService {
       }
       checkout_order.totalCheckout += item_checkout.priceApplyDiscount
       shop_order_ids_new.push(item_checkout)
+      console.log('update')
     }
     return {
       shop_order_ids,
