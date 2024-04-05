@@ -8,12 +8,14 @@ import cart from './cart/index.js'
 import checkout from './checkout/index.js'
 import inventory from './inventory/index.js'
 import { apiKey, permission } from '../auth/checkAuth.js'
+import { pushToLogDiscord } from '../middleware/index.js'
 
 const router = express.Router()
 
+//push logger
+router.use(pushToLogDiscord)
+
 // check api key
-
-
 router.use(apiKey)
 
 // check permissions
