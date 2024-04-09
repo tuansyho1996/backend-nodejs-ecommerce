@@ -16,8 +16,13 @@ app.use(express.json())
 app.use(express.urlencoded({
   extended: true
 }))
+
+import './test/inventory.test.js'
+import ProductServiceTest from './test/product.test.js'
+ProductServiceTest.purchaseProduct('product:001', 10)
 // init db
 import './dbs/init.mongodb.js'
+
 
 // checkOverload()
 // init router
