@@ -12,3 +12,4 @@ class ProductServiceTest {
 }
 
 export default new ProductServiceTest()
+

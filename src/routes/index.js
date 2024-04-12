@@ -8,6 +8,7 @@ import cart from './cart/index.js'
 import checkout from './checkout/index.js'
 import inventory from './inventory/index.js'
 import comment from './comment/index.js'
+import notification from './notification/index.js'
 import { apiKey, permission } from '../auth/checkAuth.js'
 import { pushToLogDiscord } from '../middleware/index.js'
 
@@ -29,6 +30,7 @@ router.use('/v1/api/comment/', comment)
 router.use('/v1/api/discount/', discount)
 router.use('/v1/api/inventory/', inventory)
 router.use('/v1/api/product', product)
+router.use('/v1/api/notification', notification)
 router.use('/v1/api/', access)
 
 // router.get('', (req, res, next) => {

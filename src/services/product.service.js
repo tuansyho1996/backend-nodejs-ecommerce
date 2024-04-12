@@ -6,6 +6,7 @@ import {
 } from "../models/repositories/product.repo.js"
 import { removeUndefinedObject, updateNestedObjectParse } from "../utils/index.js"
 import { createInventory } from "../models/repositories/inventory.repo.js"
+import NotificationService from "./notification.service.js"
 
 class ProductFactory {
   static createProduct(type, payload) {
@@ -69,7 +70,18 @@ class Product {
   }
   async createProduct(_id) {
     const new_product = await product.create({ ...this, _id })
-    await createInventory(new_product._id, new_product.product_shop, new_product.product_quantity)
+    if (new_product) {
+      NotificationService.pushNotiToSystem({
+        shopId: this.product_shop,
+        type: 'SHOP-001',
+        option: {
+          product_name: this.product_name,
+          shop_name: this.product_shop
+        }
+      }).then((rs) => console.log(rs))
+        .catch(error => console.log(error))
+      await createInventory(new_product._id, new_product.product_shop, new_product.product_quantity)
+    }
     return new_product
   }
   async updateProduct(product_id, bodyUpdate) {
