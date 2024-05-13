@@ -10,6 +10,8 @@ import inventory from './inventory/index.js'
 import comment from './comment/index.js'
 import upload from './upload/index.js'
 import notification from './notification/index.js'
+import profile from './profile/index.js'
+import rbac from './permission/index.js'
 import { apiKey, permission } from '../auth/checkAuth.js'
 import { pushToLogDiscord } from '../middleware/index.js'
 
@@ -24,10 +26,12 @@ router.use(apiKey)
 // check permissions
 router.use(permission('0000'))
 
+router.use('/v1/api/upload/', upload)
+router.use('/v1/api/profile/', profile)
+router.use('/v1/api/rbac/', rbac)
 router.use('/v1/api/checkout/', checkout)
 router.use('/v1/api/cart/', cart)
 router.use('/v1/api/comment/', comment)
-router.use('/v1/api/upload/', upload)
 
 router.use('/v1/api/discount/', discount)
 router.use('/v1/api/inventory/', inventory)

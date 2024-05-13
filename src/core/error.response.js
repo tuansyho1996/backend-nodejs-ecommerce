@@ -1,5 +1,6 @@
 'use strict'
 
+import logger from '../logger/winston.logger.js'
 import ReasonPhrases from '../utils/reasonPhrases.js'
 import statusCodes from '../utils/statusCodes.js'
 
@@ -17,6 +18,7 @@ class ErrorResponse extends Error {
   constructor(message, status) {
     super(message)
     this.status = status
+    logger.error(`${this.status} ${this.message}`)
   }
 }
 

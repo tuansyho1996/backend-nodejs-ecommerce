@@ -12,7 +12,11 @@ const uploadDisk = multer({
     }
   })
 })
+const uploadMemory = multer({
+  storage: multer.memoryStorage()
+})
 
 export {
-  uploadDisk
+  uploadDisk,
+  uploadMemory
 }
