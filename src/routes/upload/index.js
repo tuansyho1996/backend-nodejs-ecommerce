@@ -3,7 +3,6 @@
 import express from 'express'
 import { asyncHandle } from '../../auth/checkAuth.js'
 import uploadController from '../../controllers/upload.controller.js'
-import { authenticationV2 } from '../../auth/authUntils.js'
 import { uploadDisk, uploadMemory } from '../../configs/multer.config.js'
 const router = express.Router()
 

@@ -52,7 +52,6 @@ class UploadService {
     const cloudfrontDistributionDomain = 'https://d2jfx0w9sp915a.cloudfront.net'
     const randomName = () => crypto.randomBytes(16).toString('hex')
     const imageName = randomName()
-
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: imageName || 'unknow',
@@ -65,13 +64,13 @@ class UploadService {
     //   Key: imageName,
     // })
     // const urlImage = await getSignedUrl(s3, getObjectCommand, { expiresIn: 3600 })
-    console.log('key::', process.env.AWS_CLOUDFRONT_KEY)
-    const url = getSignedUrl({
-      url: `${cloudfrontDistributionDomain}/${imageName}`,
-      keyPairId: process.env.AWS_CLOUDFRONT_KEY,
-      dateLessThan: '2024-10-10',
-      privateKey: process.env.AWS_CLOUDFRONT_PRIVATE_KEY_ID,
-    })
+    // console.log('key::', process.env.AWS_CLOUDFRONT_KEY)
+    // const url = getSignedUrl({
+    //   url: `${cloudfrontDistributionDomain}/${imageName}`,
+    //   keyPairId: process.env.AWS_CLOUDFRONT_KEY,
+    //   dateLessThan: '2024-10-10',
+    //   privateKey: process.env.AWS_CLOUDFRONT_PRIVATE_KEY_ID,
+    // })
     return ({
       url,
       result

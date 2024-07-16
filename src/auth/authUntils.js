@@ -27,7 +27,6 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
     return {
       accessToken, refreshToken
     }
-
   } catch (error) {
     return error.message
   }

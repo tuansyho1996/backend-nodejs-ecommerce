@@ -9,7 +9,6 @@ class KeyTokenService {
     const filter = { user: userId }, update = { publicKey, privateKey, refreshTokenUsed: [], refreshToken }, option = { upsert: true, new: true }
     const token = await keytokenModel.findOneAndUpdate(filter, update, option)
     return token ? token.publicKey : null
-
   }
   static findByUserId = async (userId) => {
     const token = await keytokenModel.findOne({ user: userId }).lean()

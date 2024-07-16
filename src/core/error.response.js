@@ -3,6 +3,7 @@
 import logger from '../logger/winston.logger.js'
 import ReasonPhrases from '../utils/reasonPhrases.js'
 import statusCodes from '../utils/statusCodes.js'
+import mylogger from '../logger/mylogger.logger.js'
 
 const StatusCode = {
   FORBIDDEN: 403,
@@ -18,7 +19,11 @@ class ErrorResponse extends Error {
   constructor(message, status) {
     super(message)
     this.status = status
-    logger.error(`${this.status} ${this.message}`)
+    // logger.error(`${this.status} ${this.message}`)
+    // mylogger.error(
+    //   this.message,
+    //   ['/api/login', 'UUUAAA', { error: 'Bad request error' }]
+    // )
   }
 }
 

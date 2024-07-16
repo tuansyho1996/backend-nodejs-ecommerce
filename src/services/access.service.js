@@ -103,8 +103,6 @@ class AccessService {
       //create private key and publish key
       const publicKey = crypto.randomBytes(64).toString('hex')
       const privateKey = crypto.randomBytes(64).toString('hex')
-
-
       // create token pair
       const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey)
       const keyStore = await KeyTokenService.createKeyToken({

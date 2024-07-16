@@ -36,6 +36,9 @@ var shopSchema = new mongoose.Schema(
       type: Array,
       default: []
     },
+    logo: {
+      type: String,
+    }
   },
   {
     timestamps: true,
