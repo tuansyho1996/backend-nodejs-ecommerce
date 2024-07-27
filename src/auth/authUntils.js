@@ -41,7 +41,9 @@ const authenticationV2 = async (req, res, next) => {
   6. ok all => return next
   */
   //  1.
-  const userId = req.headers[HEADER.CLIENT_ID]
+  // console.log('refresh token', req.cookies.refreshToken)
+  // console.log('userId', req.cookies.userId)
+  const userId = req.cookies.userId
   if (!userId) {
     throw new AuthFailureError('Invalid request not have userId')
   }
@@ -51,7 +53,7 @@ const authenticationV2 = async (req, res, next) => {
     throw new NotFoundError('Not Found userId in key dbs')
   }
   // 3.
-  const refreshToken = req.headers[HEADER.AUTHORIZATION]
+  const refreshToken = req.cookies.refreshToken
   if (!refreshToken) {
     throw new AuthFailureError('Invalid request')
   }

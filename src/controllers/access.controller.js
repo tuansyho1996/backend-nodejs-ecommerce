@@ -18,9 +18,12 @@ class AccessController {
     }).send(res)
   }
   login = async (req, res, next) => {
+    const data = await AccessService.login(req.body)
+    res.cookie('refreshToken', data.tokens.accessToken, { httpOnly: true, expires: new Date(Date.now() + 260000000) })
+    res.cookie('userId', data.shop._id, { httpOnly: true, expires: new Date(Date.now() + 260000000) })
     return new OK({
       message: 'Login success',
-      metadata: await AccessService.login(req.body)
+      metadata: data
     }).send(res)
   }
 

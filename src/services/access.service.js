@@ -36,7 +36,6 @@ class AccessService {
     }
     //create new access token and refresh token
     const tokens = await createTokenPair({ userId, email }, keyStore.publicKey, keyStore.privateKey)
-    console.log(tokens)
     //update token
     await KeyTokenService.updateByUserId({ userId, oldRefreshToken: refreshToken, newRefreshToken: tokens.refreshToken })
     return {
@@ -58,14 +57,15 @@ class AccessService {
 
   static login = async ({ email, password, refreshToken = null }) => {
     //check email dbs
+    console.log('check password', password)
     const foundShop = await findByEmail({ email })
     if (!foundShop) {
-      throw new BadRequestError('Error: Not Found Email')
+      throw new BadRequestError('Email does not exist')
     }
     // match password
-    const match = bcrypt.compare(password, foundShop.password)
+    const match = await bcrypt.compare(password, foundShop.password)
     if (!match) {
-      throw new AuthFailureError('Error: Authentication error')
+      throw new AuthFailureError('Password is not valid')
     }
     // create private key,publish key and save
     const publicKey = crypto.randomBytes(64).toString('hex')

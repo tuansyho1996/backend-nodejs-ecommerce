@@ -17,8 +17,23 @@ const findByEmail = async ({ email, select = {
   return await shopModel.findOne({ email }).select(select).lean()
 }
 
+const findShopById = async ({ _id, select = { email: 1, name: 1, status: 1, roles: 1 } }) => {
+  return await shopModel.findOne({ _id }).select(select).lean()
+}
+
 const getAllShops = async () => {
-  return await shopModel.find().lean()
+  let shops = await shopModel.find().select({ name: 1, email: 1, logo: 1 })
+  // shops = await Promise.all(
+  //   shops.map(async (shop) => {
+  //     const commandObject = new GetObjectCommand({
+  //       Bucket: process.env.AWS_BUCKET_NAME,
+  //       Key: shop.logo,
+  //     })
+  //     shop.logo = await getSignedUrl(s3, commandObject, { expiresIn: 3600 })
+  //     return shop
+  //   })
+  // )
+  return shops
 }
 
 const createNewShop = async (data) => {
@@ -70,9 +85,31 @@ const createNewShop = async (data) => {
     metadata: null
   }
 }
-
+const getShop = async (_id) => {
+  const shop = findShopById({ _id })
+  if (!shop) {
+    throw new BadRequestError(`Shop doesn't exist`)
+  }
+  return shop
+}
+const importManyShops = async (data) => {
+  const password = '123456'
+  const hashPassword = await bcrypt.hash(password, 10)
+  data.map((item, index) => {
+    item.email = `${item.email}${index}`
+    item.password = hashPassword
+    return item
+  })
+  console.log(data)
+  const res = await shopModel.insertMany(data)
+  return {
+    message: 'call success'
+  }
+}
 export {
   findByEmail,
   getAllShops,
-  createNewShop
+  createNewShop,
+  getShop,
+  importManyShops
 }

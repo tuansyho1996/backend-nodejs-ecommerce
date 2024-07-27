@@ -38,6 +38,18 @@ var shopSchema = new mongoose.Schema(
     },
     logo: {
       type: String,
+    },
+    address: {
+      type: String
+    },
+    phone: {
+      type: String
+    },
+    rating: {
+      type: Number
+    },
+    sales: {
+      type: Number
     }
   },
   {

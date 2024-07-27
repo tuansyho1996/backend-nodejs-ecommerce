@@ -14,12 +14,12 @@ import profile from './profile/index.js'
 import shops from './shops/index.js'
 import rbac from './permission/index.js'
 import { apiKey, permission } from '../auth/checkAuth.js'
-import { pushToLogDiscord } from '../middleware/index.js'
+// import { pushToLogDiscord } from '../middleware/index.js'
 
 const router = express.Router()
 
 //push logger
-router.use(pushToLogDiscord)
+// router.use(pushToLogDiscord)
 
 // check api key
 // router.use(apiKey)
