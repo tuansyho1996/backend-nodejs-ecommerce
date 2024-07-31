@@ -1,5 +1,5 @@
 import { CREATED, OK } from "../core/success.response.js"
-import { getAllShops, createNewShop, getShop, importManyShops } from "../services/shop.service.js"
+import { getAllShops, createNewShop, getShop, importManyShops, changeAvatar, editInformation } from "../services/shop.service.js"
 
 class ShopController {
   getAllShops = async (req, res, next) => {
@@ -26,6 +26,18 @@ class ShopController {
     return new CREATED({
       message: 'Import success!',
       metadata: await importManyShops(req.body)
+    }).send(res)
+  }
+  changeAvatar = async (req, res, next) => {
+    return new OK({
+      message: 'Changed avatar successfully!',
+      metadata: await changeAvatar({ userId: req.body.userId, logo: req.file })
+    }).send(res)
+  }
+  editInformation = async (req, res, next) => {
+    return new OK({
+      message: 'Changed infomation profile successfully',
+      metadata: await editInformation(req.body)
     }).send(res)
   }
 }

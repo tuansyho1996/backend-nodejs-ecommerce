@@ -4,25 +4,24 @@ import shopModel from "../models/shop.model.js"
 import crypto from 'node:crypto'
 import { createTokenPair } from "../auth/authUntils.js"
 import KeyTokenService from "./keyToken.service.js"
-import { getInfoData } from "../utils/index.js"
+import { getInfoData, unGetSelectData } from "../utils/index.js"
 import bcrypt from 'bcrypt'
 import { PutObjectCommand, s3, GetObjectCommand } from "../configs/awsS3.config.js"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import 'dotenv/config.js'
 
 
-const findByEmail = async ({ email, select = {
-  email: 1, name: 1, password: 1, status: 1, roles: 1
-} }) => {
-  return await shopModel.findOne({ email }).select(select).lean()
+const findByEmail = async ({ email }) => {
+  return await shopModel.findOne({ email }).lean()
 }
 
-const findShopById = async ({ _id, select = { email: 1, name: 1, status: 1, roles: 1 } }) => {
-  return await shopModel.findOne({ _id }).select(select).lean()
+const findShopById = async ({ _id }) => {
+  console.log(_id, typeof _id)
+  return await shopModel.findOne({ _id }).select(unGetSelectData(['password']))
 }
 
 const getAllShops = async () => {
-  let shops = await shopModel.find().select({ name: 1, email: 1, logo: 1 })
+  let shops = await shopModel.find().select(unGetSelectData(['password'])).lean()
   // shops = await Promise.all(
   //   shops.map(async (shop) => {
   //     const commandObject = new GetObjectCommand({
@@ -35,7 +34,6 @@ const getAllShops = async () => {
   // )
   return shops
 }
-
 const createNewShop = async (data) => {
 
   const { email, name, password, logo } = data
@@ -86,10 +84,17 @@ const createNewShop = async (data) => {
   }
 }
 const getShop = async (_id) => {
-  const shop = findShopById({ _id })
+
+  const shop = await findShopById({ _id })
   if (!shop) {
     throw new BadRequestError(`Shop doesn't exist`)
   }
+  const commandObject = new GetObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: shop.logo
+  })
+  const urlLogo = await getSignedUrl(s3, commandObject, { expiresIn: 3600 })
+  shop.logo = urlLogo
   return shop
 }
 const importManyShops = async (data) => {
@@ -106,10 +111,39 @@ const importManyShops = async (data) => {
     message: 'call success'
   }
 }
+const changeAvatar = async ({ userId, logo }) => {
+  const shop = await findShopById({ _id: userId })
+  if (!shop) {
+    throw new BadRequestError('User does not exist')
+  }
+  const randomName = crypto.randomBytes(16).toString('hex')
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: randomName || 'unknow',
+    Body: logo.buffer,
+    ContentType: 'image/jpeg',
+  })
+  const urlLogo = await s3.send(command)
+  shop.logo = randomName
+  await shop.save()
+  return shop
+}
+const editInformation = async (data) => {
+  const shop = await findShopById({ _id: data._id })
+  if (!shop) {
+    throw new BadRequestError('Shop is not invalid')
+  }
+  data.map
+  const res = await shopModel.findOneAndUpdate({ _id: data._id }, { $set: data }, { upsert: true, new: true })
+  console.log(res)
+  return res
+}
 export {
   findByEmail,
   getAllShops,
   createNewShop,
   getShop,
-  importManyShops
+  importManyShops,
+  changeAvatar,
+  editInformation
 }

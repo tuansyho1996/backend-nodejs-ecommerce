@@ -57,7 +57,6 @@ class AccessService {
 
   static login = async ({ email, password, refreshToken = null }) => {
     //check email dbs
-    console.log('check password', password)
     const foundShop = await findByEmail({ email })
     if (!foundShop) {
       throw new BadRequestError('Email does not exist')
@@ -86,7 +85,7 @@ class AccessService {
 
     return {
       code: 200,
-      shop: getInfoData({ filed: ['_id', 'name', 'email'], object: foundShop }),
+      shop: getInfoData({ filed: ['_id', 'name', 'email', 'address', 'logo', 'phone'], object: foundShop }),
       tokens
     }
   }

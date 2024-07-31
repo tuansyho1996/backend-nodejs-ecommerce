@@ -19,6 +19,7 @@ class AccessController {
   }
   login = async (req, res, next) => {
     const data = await AccessService.login(req.body)
+    console.log('check id shop', data.shop._id)
     res.cookie('refreshToken', data.tokens.accessToken, { httpOnly: true, expires: new Date(Date.now() + 260000000) })
     res.cookie('userId', data.shop._id, { httpOnly: true, expires: new Date(Date.now() + 260000000) })
     return new OK({

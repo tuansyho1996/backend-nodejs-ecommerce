@@ -14,5 +14,7 @@ router.get('/list-all-shops', asyncHandle(shopsController.getAllShops))
 router.get('/getshop', asyncHandle(shopsController.getShop))
 router.post('/import-many-shops', asyncHandle(shopsController.importManyShops))
 router.post('/create', uploadMemory.single('file'), asyncHandle(shopsController.createNewShop))
+router.post('/change-avatar', uploadMemory.single('file'), asyncHandle(shopsController.changeAvatar))
+router.post('/edit-information', asyncHandle(shopsController.editInformation))
 
 export default router
